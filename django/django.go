@@ -20,8 +20,7 @@ type BestMatch struct {
 	Branch string
 }
 
-func GetDjangoDisclosure(targetUrl string) {
-	fmt.Printf("%v\n", color.YellowString("GetDjangoDisclosure"))
+func GetDjangoVersion(targetUrl string) {
 	djangoStableBranchs := []string{
 		"stable/5.0.x",
 		"stable/4.2.x",
@@ -43,24 +42,28 @@ func GetDjangoDisclosure(targetUrl string) {
 		"stable/1.6.x",
 	}
 
-	djangoDisclosureInit()
+	djangoGetVersionInit()
+
+	fmt.Printf("[%v] django git clone in progress\n", color.BlueString("info"))
 
 	var r *git.Repository
-
 	r, _ = git.PlainClone(".tmp/git", false, &git.CloneOptions{
-		URL:      "https://github.com/django/django",
-		Progress: os.Stdout,
+		URL: "https://github.com/django/django",
 	})
 
 	w, err := r.Worktree()
 
 	if err != nil {
-		fmt.Printf("%v\n", color.RedString("error on clone django git : %v", err))
+		fmt.Printf("[%v] error on clone django git : %v\n", color.RedString("err"), err)
 	}
+
+	fmt.Printf("[%v] django git clone finished\n", color.BlueString("info"))
 
 	bestMatch := BestMatch{Score: 999999}
 	//target en fonction du listing de git
 	for _, djangoBranch := range djangoStableBranchs {
+		fmt.Printf("[%v] process on branch %v\n", color.BlueString("info"), djangoBranch)
+
 		branchRefName := plumbing.NewBranchReferenceName(djangoBranch)
 		branchCoOpts := git.CheckoutOptions{
 			Branch: plumbing.ReferenceName(branchRefName),
@@ -73,7 +76,7 @@ func GetDjangoDisclosure(targetUrl string) {
 			_ = w.Checkout(&branchCoOpts)
 		}
 
-		newMatch := djangoDiclosureDownloadAndCheck(targetUrl, djangoBranch)
+		newMatch := downloadAndCheck(targetUrl, djangoBranch)
 		if newMatch.Score < bestMatch.Score {
 			bestMatch = newMatch
 		} else if newMatch.Score == bestMatch.Score {
@@ -81,18 +84,19 @@ func GetDjangoDisclosure(targetUrl string) {
 		}
 	}
 
-	fmt.Printf("%v\n", color.GreenString("bestMatch %v", bestMatch))
-
-	djangoDisclosureClean()
+	fmt.Printf("[%v] django version : %v with %v differences\n", color.GreenString("result"), bestMatch.Branch, bestMatch.Score)
+	djangoGetVersionClean()
 }
 
-func djangoDisclosureInit() {
+func djangoGetVersionInit() {
+	djangoGetVersionClean()
+
 	os.Mkdir(".tmp", os.ModePerm)
 	os.Mkdir(".tmp/target", os.ModePerm)
 	os.Mkdir(".tmp/git", os.ModePerm)
 }
 
-func djangoDisclosureClean() {
+func djangoGetVersionClean() {
 	os.RemoveAll(".tmp/")
 }
 
@@ -116,7 +120,7 @@ func fetchOrigin(repo *git.Repository, refSpecStr string) error {
 	return nil
 }
 
-func djangoDiclosureDownloadAndCheck(targetUrl string, djangoBranch string) BestMatch {
+func downloadAndCheck(targetUrl string, djangoBranch string) BestMatch {
 	baseGit := ".tmp/git/django/contrib/admin/static/admin"
 	os.RemoveAll(".tmp/target/static")
 
@@ -130,7 +134,6 @@ func djangoDiclosureDownloadAndCheck(targetUrl string, djangoBranch string) Best
 	for _, fileToDownload := range filesToCompare {
 		err := downloadFile(".tmp/target/"+strings.ReplaceAll(fileToDownload, targetUrl, ""), fileToDownload)
 		if err != nil {
-			fmt.Printf("%v\n", color.RedString(fileToDownload))
 			bestMatch.Score += 1
 		}
 	}
@@ -151,12 +154,11 @@ func djangoDiclosureDownloadAndCheck(targetUrl string, djangoBranch string) Best
 		}
 	}*/
 
-	fmt.Printf("%v\n", color.YellowString("currentMatch %v", bestMatch))
 	return bestMatch
 }
 
 func recursiveFiles(baseFolder string, currentFolder string, targetUrl string) (files []string) {
-	baseTarget := targetUrl + "static/admin"
+	baseTarget := targetUrl + "/static/admin"
 
 	items, _ := os.ReadDir(baseFolder + currentFolder)
 	for _, item := range items {
