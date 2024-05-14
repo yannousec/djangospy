@@ -52,5 +52,7 @@ func main() {
 		django.GetDjangoVersion(targetUrl.Scheme + "://" + targetUrl.Host)
 	}
 
-	//Lancer la récupération des packages en 2nd
+	if *withListPackages {
+		django.GetDjangoPackages(targetUrl.Scheme + "://" + targetUrl.Host)
+	}
 }
