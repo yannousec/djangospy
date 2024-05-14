@@ -9,7 +9,7 @@ import (
 	"github.com/fatih/color"
 )
 
-// djangospy -u https://target.com -version True -list-packages True -max-thread 100 -delay 100
+// djangospy -u https://target.com -version True -list-packages True
 func main() {
 	logo := `
 ░▒▓███████▓▒░       ░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
