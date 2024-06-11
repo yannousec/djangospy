@@ -138,21 +138,7 @@ func downloadAndCheck(targetUrl string, djangoBranch string) BestMatch {
 		}
 	}
 
-	//TODO: compresser les css afin de pouvoir les comparer
-	/*cmp := equalfile.New(nil, equalfile.Options{})
-	for _, fileToCompare := range filesToCompare {
-
-		targetFile := ".tmp/target/" + strings.ReplaceAll(fileToCompare, targetUrl, "")
-		gitFile := ".tmp/git/django/contrib/admin/" + strings.ReplaceAll(fileToCompare, targetUrl, "")
-
-		isEqual, _ := cmp.CompareFile(targetFile, gitFile)
-		if !isEqual {
-			fmt.Printf("%v\n", color.RedString("%v   %v", targetFile, gitFile))
-			bestMatch.Score += 1
-		} else {
-			fmt.Printf("%v\n", color.BlueString("%v   %v", targetFile, gitFile))
-		}
-	}*/
+	//TODO: make a compress version for compare it
 
 	return bestMatch
 }
@@ -173,8 +159,6 @@ func recursiveFiles(baseFolder string, currentFolder string, targetUrl string) (
 }
 
 func downloadFile(filePath string, url string) error {
-
-	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -184,7 +168,7 @@ func downloadFile(filePath string, url string) error {
 	if resp.StatusCode != 200 {
 		return errors.New("404")
 	}
-	// Create the file
+
 	folder := strings.ReplaceAll(filePath, filepath.Base(filePath), "")
 
 	err = os.MkdirAll(folder, os.ModePerm)
@@ -198,7 +182,6 @@ func downloadFile(filePath string, url string) error {
 	}
 	defer out.Close()
 
-	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	return err
 }

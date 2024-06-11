@@ -9,7 +9,6 @@ import (
 	"github.com/fatih/color"
 )
 
-// djangospy -u https://target.com -version True -list-packages True
 func main() {
 	logo := `
 ░▒▓███████▓▒░       ░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░ 
@@ -27,8 +26,6 @@ func main() {
 	var targetUrlString = flag.String("u", "", "Target url with protocol ex: https://target.com")
 	var withVersion = flag.Bool("version", false, "Get the version of Django on the target")
 	var withListPackages = flag.Bool("list-packages", false, "Get the package's list on the target")
-	//var maxThread = flag.Int("max-thread", 100, "Set the max thread")
-	//var delay = flag.Int("delay", 0, "Set the delay between 2 requests (default : 0)")
 
 	flag.Parse()
 
